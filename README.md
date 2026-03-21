@@ -139,7 +139,7 @@ Projects are saved as `.dkmt` files (JSON) alongside the generated mod folder. T
 
 ## Packaging (Developers)
 
-To build a standalone executable:
+To build a standalone executable from source:
 
 ```bash
 pip install pyinstaller
@@ -156,7 +156,7 @@ The installer registers the `.dkmt` file association so double-clicking project 
 
 ---
 
-## File Structure
+## File Structure (source)
 
 ```
 doorkicker_mod_tool/
@@ -168,7 +168,6 @@ doorkicker_mod_tool/
   theme.py       — Dark and light theme application
   utils.py       — Settings persistence, file helpers, description word-wrap
   constants.py   — All lookup tables, weapon presets, armor/shield defaults
-  installer.iss  — Inno Setup installer script
 ```
 
 ---

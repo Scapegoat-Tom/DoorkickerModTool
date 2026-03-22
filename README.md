@@ -1,4 +1,4 @@
-# Doorkicker Mod Tool
+# Doorkickers Mod Tool
 
 A desktop application for creating and publishing custom equipment mods for **Door Kickers** by KillHouse Games. Build weapons, armor, and shields through a guided interface and export valid XML mod files ready to load in-game or publish to the Steam Workshop — no manual XML editing required.
 
@@ -108,7 +108,7 @@ Before publishing, ensure:
 |---|---|
 | Publish → Publish to Workshop | Uploads the mod for the first time |
 | Publish → Update Workshop Mod | Prompts for change notes, rewrites `mod.xml`, then updates the existing Workshop item |
-| Publish → Delete from Workshop | Permanently removes the mod and unsubscribes all subscribers |
+| Publish → Delete from Workshop | Permanently removes the mod and unsubscribes all subscribers (not working, fix comming later) |
 
 The tool launches DoorKickers.exe with the appropriate command-line flag, waits for it to finish, then reads `log.txt` from your Documents folder to confirm success or report an error.
 

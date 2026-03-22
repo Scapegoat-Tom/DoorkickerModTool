@@ -8,8 +8,32 @@ from constants import DESC_MAX_LINES, DESC_LINE_WIDTH
 
 # ── Settings persistence ──────────────────────────────────────────────────────
 
-# Saved next to the script so it's easy to find, not buried in AppData.
-SETTINGS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dmt_settings.json")
+# Store settings in %APPDATA%\Roaming\DoorkickerModTool\dmt_settings.json
+#
+# Folder choice rationale:
+#   %APPDATA%      → C:\Users\<name>\AppData\Roaming   ← we use this
+#   %LOCALAPPDATA% → C:\Users\<name>\AppData\Local
+#   LocalLow                                            ← low-integrity processes only
+#
+# Roaming is the right home for a small settings JSON: it's machine-independent
+# user preferences that could follow a roaming profile, it's always writable by
+# the current user (even from a compiled/installed exe), and it matches what
+# most desktop tools (VS Code, Notepad++, etc.) use for user config.
+# Local would be fine too, but Roaming is the stronger convention for settings.
+#
+# Note: %APPDATA% already expands to the Roaming sub-folder — it does NOT point
+# to the AppData root.  Writing directly to %APPDATA% without a sub-folder would
+# litter the Roaming directory, so we always nest under "DoorkickerModTool\".
+
+def _settings_path() -> str:
+    # %APPDATA% → Roaming; fall back to home dir on non-Windows / unusual setups
+    appdata = os.environ.get("APPDATA") or os.path.expanduser("~")
+    folder  = os.path.join(appdata, "DoorkickerModTool")
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, "dmt_settings.json")
+
+SETTINGS_FILE = _settings_path()
+
 
 def load_settings() -> dict:
     try:
@@ -24,6 +48,32 @@ def save_settings(s: dict) -> None:
             json.dump(s, f, indent=2)
     except Exception:
         pass
+
+
+# FIX 3: Provide a sensible default output directory — the game's own mods
+# folder under Documents.  This mirrors where DoorKickers looks for mods.
+
+def default_output_dir() -> str:
+    """
+    Return C:\\Users\\<name>\\Documents\\KillHouseGames\\DoorKickers\\mods
+    (or the equivalent path resolved via the real Documents folder,
+    which may be relocated to OneDrive on Windows 11).
+    """
+    # Try the shell API first (handles OneDrive folder redirection)
+    try:
+        import ctypes
+        import ctypes.wintypes
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(0, 5, 0, 0, buf)
+        if buf.value:
+            docs = buf.value
+        else:
+            raise RuntimeError("empty path")
+    except Exception:
+        docs = os.path.join(os.path.expanduser("~"), "Documents")
+
+    return os.path.join(docs, "KillHouseGames", "DoorKickers", "mods")
+
 
 # ── File / name helpers ───────────────────────────────────────────────────────
 

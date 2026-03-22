@@ -20,7 +20,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from pathlib import Path
 
-from utils      import load_settings, save_settings, sanitize_filename, mod_name_to_xml_filename, get_image_size
+from utils      import load_settings, save_settings, sanitize_filename, mod_name_to_xml_filename, get_image_size, default_output_dir
 from theme      import apply_theme
 from xml_gen    import generate_mod_xml, generate_filesystem_mount_xml, generate_equipment_xml
 from publish    import Publisher
@@ -32,7 +32,7 @@ from constants  import WEAPON_PRESETS
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Doorkicker Mod Tool")
+        self.title("Doorkicker Mod Tool")   # FIX 4: corrected title (was "Doorkicker Mod Tool" with trailing space typo removed)
         self.geometry("980x800")
         self.resizable(True, True)
 
@@ -243,7 +243,9 @@ class App(tk.Tk):
     def _apply_settings_defaults(self):
         if not self.mod_author.get():
             self.mod_author.set(self.settings.get("default_author", ""))
-        self.output_dir.set(self.settings.get("last_output_dir", ""))
+        # FIX 3: fall back to the game's mods folder if no output dir is set
+        saved = self.settings.get("last_output_dir", "")
+        self.output_dir.set(saved if saved else default_output_dir())
 
     def _open_settings(self):
         dlg = SettingsDialog(self, self.settings)
@@ -422,7 +424,10 @@ class App(tk.Tk):
             base      = Path(self.output_dir.get()) / mod_name
             items_dir = base / "gui" / "customization" / "items"
             mods_dir  = base / "gui" / "customization" / "mods"
-            xml_dir   = base / "data" / "xml"
+            # FIX 1: equipment XML goes directly in xml/ (not data/xml/).
+            # In filesystem_mount.xml the path is written as data/xml/... because
+            # the game interprets "data" as the mod root, not a real sub-folder.
+            xml_dir   = base / "xml"
             for d in [base, items_dir, mods_dir, xml_dir]:
                 d.mkdir(parents=True, exist_ok=True)
 

@@ -41,7 +41,7 @@ def find_log_path() -> str:
 # Success tokens matched against the last session block in log.txt
 _SUCCESS_TOKENS = {
     "-publish":          "PublishFile OK",
-    "-update_published": "UpdateFile OK",
+    "-update_published": "ShareFile OK",
     "-delete_published": "DeleteFile OK",
 }
 
@@ -93,19 +93,16 @@ class Publisher:
     def __init__(self, exe_path: str, mod_folder: str):
         self.exe_path   = exe_path
         self.mod_folder = mod_folder
-
+        
     def run(self, flag: str, label: str, schedule_fn, on_done) -> None:
-        """
-        Launch DK.exe in a daemon thread.
-        *schedule_fn* — e.g. ``root.after`` — marshals the result back to the UI thread.
-        """
         threading.Thread(
             target=self._worker,
             args=(flag, label, schedule_fn, on_done),
             daemon=True,
         ).start()
-
+        
     def _worker(self, flag: str, label: str, schedule_fn, on_done) -> None:
+
         try:
             proc = subprocess.Popen(
                 [self.exe_path, flag, self.mod_folder],
@@ -113,8 +110,10 @@ class Publisher:
                 stderr=subprocess.DEVNULL,
             )
             proc.wait()
-            time.sleep(0.5)   # let DK finish flushing the log
-            success, detail = parse_log_result(find_log_path(), flag)
+            time.sleep(2.0)
+            log_path = find_log_path()
+            success, detail = parse_log_result(log_path, flag)
+
         except Exception as e:
             success, detail = False, str(e)
 

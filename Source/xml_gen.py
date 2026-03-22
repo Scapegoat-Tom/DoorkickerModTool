@@ -1,6 +1,21 @@
 # ── xml_gen.py ────────────────────────────────────────────────────────────────
 # Generates mod.xml, filesystem_mount.xml, and the combined equipment XML.
 # No tkinter imports.
+#
+# FOLDER LAYOUT NOTE
+# ──────────────────
+# The game treats the mod root as its "data/" namespace, so the path written
+# inside filesystem_mount.xml is:
+#
+#   <MountFile name="data/xml/<ModName>.xml"/>
+#
+# …but on disk the file lives at:
+#
+#   <OutputDir>/<ModName>/xml/<ModName>.xml   ← no "data" sub-folder
+#
+# main.py creates the "xml/" directory directly under the mod root, which is
+# correct.  The "data/xml/..." string in the mount file is a virtual path
+# understood by the game engine, not a real filesystem path.
 
 from utils import sanitize_filename, mod_name_to_xml_filename, wrap_description
 from constants import SHELL_DROP_FAMILIES, BULLET_TRACE
@@ -35,6 +50,8 @@ def generate_mod_xml(data: dict) -> str:
 
 def generate_filesystem_mount_xml(data: dict) -> str:
     xml_filename = mod_name_to_xml_filename(data["mod_name"])
+    # "data/xml/..." is the game's virtual path; the mod root acts as "data/".
+    # The file is placed in  <mod_root>/xml/<ModName>.xml  on disk (no "data" folder).
     return (
         '<filesystem_mount>\n\t<ObjectLibrary>\n\n'
         '\t\t<!-- equipment/abilities/doctrine need to load before humans -->\n'
@@ -142,7 +159,6 @@ def _armor_block(a: dict) -> str:
         f'piercingProtectionLevel="{arc["piercing"]}"/>'
         for arc in arcs
     )
-
 
     return (
         f'\t<Armor name="{a["name"]}" inventoryBinding="Armor">\n'

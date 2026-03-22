@@ -1,6 +1,6 @@
 # Doorkickers Mod Tool
 
-A desktop application for creating and publishing custom equipment mods for **Door Kickers** by KillHouse Games. Build weapons, armor, and shields through a guided interface and export valid XML mod files ready to load in-game or publish to the Steam Workshop — no manual XML editing required.
+A desktop application for creating and publishing custom equipment mods for **Door Kickers** by KillHouse Games. Build weapons, armor, and shields through a guided interface and export valid XML mod files ready to load in-game or publish to the Steam Workshop — no manual XML editing required. When launching the installer or running the py script yourself you will be prompted to give the script permissions it needs to run, this is because it is unsigned code. If you are ever unsure feel free to check the source script. The installer was created using Inno Setup and the exe was complied with PyInstaller and auto-py-to-exe.
 
 ---
 
